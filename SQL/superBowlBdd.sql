@@ -9,7 +9,8 @@ CREATE TABLE Utilisateur (
     prenom VARCHAR(100) NOT NULL,
     adresseEmail VARCHAR(254) NOT NULL,
     motDePasse VARCHAR(254) NOT NULL, -- Assurez-vous de stocker les mots de passe de manière sécurisée (hachage)
-    dateInscription DATETIME NOT NULL
+    dateInscription DATETIME NOT NULL,
+    actif int not null
 );
 drop table if exists Equipe;
 -- Création de la table Équipe
@@ -99,7 +100,8 @@ CREATE TABLE Administrateur(
     login VARCHAR(100) NOT NULL,
     pass varchar(100) NOT NULL,
     nom VARCHAR(100) NOT NULL,
-    prenom VARCHAR(100) NOT NULL
+    prenom VARCHAR(100) NOT NULL,
+    actif int not null
 );
 
 -- Création de la table session
