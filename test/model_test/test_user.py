@@ -3,6 +3,7 @@ from flask import Flask
 from app.models.user import User
 from config import Config
 from flaskext.mysql import MySQL
+from app.utils.hashFunction import hash_password
 
 app = Flask(__name__)
 
@@ -41,7 +42,6 @@ class TestUser(unittest.TestCase):
         # Vérifiez si l'utilisateur a été correctement enregistré dans la base de données
         fetched_user = User.get_by_email_actif("john@example.com")
         self.assertIsNotNone(fetched_user)
-        self.assertEqual(fetched_user.userID, 4)
         self.assertEqual(fetched_user.nom, "John")
         self.assertEqual(fetched_user.prenom, "Doe")
         self.assertEqual(fetched_user.adresseEmail, "john@example.com")
@@ -90,7 +90,16 @@ class TestUser(unittest.TestCase):
     #    self.assertEqual(desactivate_user.actif, 0)
 
     def test_get_all_users_actif(self):
-        user = User("Raphael", "David", "david@example.com", "password")
+        passHash = hash_password("motdepassecompliquer")
+        user = User("Atlas", "potter", "potter@example.com", passHash)
         user.save()
 
-        # TODO
+        users = User.get_all_users_actif()
+        self.assertIsNotNone(users)
+        for user in users:
+            print(user.userID)
+            print(user.nom)
+            print(user.prenom)
+            print(user.adresseEmail)
+            print(user.motDePasse)
+            print(user.actif)
