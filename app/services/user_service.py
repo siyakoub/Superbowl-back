@@ -37,8 +37,8 @@ class UserService:
         return User.get_by_id(id)
 
     @staticmethod
-    def update_user_service(user, nom, prenom, adresseEmail, motDePasse):
-        user.update_user(nom, prenom, adresseEmail, motDePasse)
+    def update_user_service(nom, prenom, adresseEmail, motDePasse, emailBase):
+        return User.update_user(nom, prenom, adresseEmail, motDePasse, emailBase)
 
     @staticmethod
     def delete_user_service(user):

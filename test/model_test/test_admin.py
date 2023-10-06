@@ -8,6 +8,7 @@ from flaskext.mysql import MySQL
 
 app = Flask(__name__)
 
+
 class TestAdmin(unittest.TestCase):
 
     def setUp(self):

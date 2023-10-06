@@ -19,6 +19,14 @@ class AdminService:
         return Admin.get_all_admin_inactif()
 
     @staticmethod
+    def get_all_admin():
+        return Admin.get_all_admin()
+
+    @staticmethod
+    def get_admin_by_id(id):
+        return Admin.get_by_id(id)
+
+    @staticmethod
     def get_admin_by_login(login):
         return Admin.get_admin_by_login(login)
 
@@ -34,16 +42,14 @@ class AdminService:
         else:
             pass
 
-    @staticmethod
-    def delete_admin(admin):
-        if admin:
-            admin.delete_admin()
+    def delete_admin(self):
+        if self:
+            self.delete_admin()
         else:
             pass
 
-    @staticmethod
-    def desactivate_admin(admin):
-        if admin:
-            admin.desactivate_admin()
+    def desactivate_admin(self):
+        if self:
+            self.desactivate_admin()
         else:
             pass

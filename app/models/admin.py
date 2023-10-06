@@ -88,7 +88,7 @@ class Admin:
             return None
 
     @staticmethod
-    def get_all_admin_actif():
+    def get_all_admin():
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute("select * from administrateur")
@@ -107,6 +107,25 @@ class Admin:
                 admins.append(
                     Admin(admin_login, admin_password, admin_name, admin_firstname, admin_id, admin_actif))
             return admins
+        else:
+            return None
+
+    @staticmethod
+    def get_by_id(id):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM administrateur WHERE adminID = %s", (id,))
+        admin_data = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if admin_data:
+            admin_id = int(admin_data[0])
+            admin_login = admin_data[1]
+            admin_password = admin_data[2]
+            admin_name = admin_data[3]
+            admin_firstname = admin_data[4]
+            admin_actif = admin_data[5]
+            return Admin(admin_login, admin_password, admin_name, admin_firstname, admin_id, admin_actif)
         else:
             return None
 

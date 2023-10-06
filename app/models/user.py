@@ -169,16 +169,18 @@ class User:
             user_email = user_data[3]
             user_password = user_data[4]
             user_dateInscription = user_data[5]
-            return User(user_name, user_prenom, user_email, user_password, user_id, user_dateInscription)
+            user_actif = user_data[6]
+            return User(user_name, user_prenom, user_email, user_password, user_id, user_dateInscription, user_actif)
         else:
             return None
 
-    def update_user(self, nom, prenom, adresseEmail, motDePasse):
+    @staticmethod
+    def update_user(nom, prenom, adresseEmail, motDePasse, emailBase):
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(
             "UPDATE Utilisateur SET nom=%s, prenom=%s, adresseEmail=%s, motDePasse=%s WHERE adresseEmail=%s",
-            (nom, prenom, adresseEmail, motDePasse, self.adresseEmail)
+            (nom, prenom, adresseEmail, motDePasse, emailBase)
         )
         conn.commit()
         cursor.close()
