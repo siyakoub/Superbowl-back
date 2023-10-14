@@ -5,7 +5,7 @@ class OddsService:
 
     @staticmethod
     def create_odds_service(coteVictoire, teamID):
-        odds = Odds(teamID, coteVictoire)
+        odds = Odds(coteVictoire, teamID)
         odds.save()
 
     @staticmethod

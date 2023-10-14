@@ -3,9 +3,9 @@ from app import mysql
 
 class Odds:
 
-    def __init__(self, teamID, coteVictoire, coteID=None):
-        self.teamID = teamID
+    def __init__(self, coteVictoire: float, teamID: int, coteID=None):
         self.coteVictoire = coteVictoire
+        self.teamID = teamID
         self.coteID = coteID
 
     def save(self):
@@ -62,9 +62,9 @@ class Odds:
         conn.close()
         if cote_data:
             cote_id = cote_data[0]
-            cote_victoire = cote_data[1]
-            good_team_id = cote_data[2]
-            return Odds(good_team_id, cote_victoire, cote_id)
+            cote_victoire = cote_data[2]
+            good_team_id = cote_data[1]
+            return Odds(cote_victoire, good_team_id, cote_id)
         else:
             return None
 

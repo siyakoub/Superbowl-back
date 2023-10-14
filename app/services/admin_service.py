@@ -48,8 +48,6 @@ class AdminService:
         else:
             pass
 
-    def desactivate_admin(self):
-        if self:
-            self.desactivate_admin()
-        else:
-            pass
+    @staticmethod
+    def desactivate_admin(admin):
+        admin.desactivate_admin()

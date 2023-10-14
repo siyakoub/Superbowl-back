@@ -14,7 +14,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Adresse e-mail déjà existante';
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -53,7 +53,7 @@ BEGIN
         );
 
     END IF;
-END$$
+END $$
 DELIMITER ;
 
 DELIMITER $$
@@ -89,7 +89,7 @@ BEGIN
         );
 
     END IF;
-END$$
+END $$
 DELIMITER ;
 
 DELIMITER $$
@@ -107,7 +107,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Administrateur déjà existante';
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -127,7 +127,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Equipe déjà existante';
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -157,7 +157,7 @@ BEGIN
         );
 
     END IF;
-END$$
+END $$
 DELIMITER ;
 
 
@@ -176,7 +176,7 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Joueur déjà existante dans l\'equipe';
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -212,7 +212,7 @@ BEGIN
         );
 
     END IF;
-END$$
+END $$
 DELIMITER ;
 
 DELIMITER $$
@@ -224,13 +224,13 @@ BEGIN
     DECLARE teamID_count INT;
 
     -- Vérifier si l'adresse e-mail existe déjà
-    SELECT COUNT(*) INTO teamID_count FROM cote WHERE coteVictoire = NEW.coteVictoire;
+    SELECT COUNT(*) INTO teamID_count FROM cote WHERE equipeID = NEW.equipeID;
 
     IF teamID_count > 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Une équipe ne peut pas avoir plusieurs côtes';
     END IF;
-END$$
+END $$
 
 DELIMITER ;
 
@@ -260,5 +260,216 @@ BEGIN
         );
 
     END IF;
-END$$
+END $$
+DELIMITER ;
+
+DELIMITER $$
+drop procedure if exists sp_createMatch;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createMatch`(
+    IN p_teamDomicileID int,
+    IN p_teamExterieurID int,
+    IN p_dateHeureDebut datetime,
+    IN p_dateHeureFin datetime,
+    IN p_statut varchar(10)
+)
+BEGIN
+    if ( select exists (select 1 from confrontation where equipeDomicileID = p_teamDomicileID AND equipeExterieurID = p_teamExterieurID AND dateHeureDebut = p_dateHeureDebut AND dateHeureFin = p_dateHeureFin) ) THEN
+
+        select 'Match déjà enregistré...';
+
+    ELSE
+
+        insert into confrontation
+        (
+            equipeDomicileID,
+            equipeExterieurID,
+            dateHeureDebut,
+            dateHeureFin,
+            statut
+        )
+        values
+        (
+            p_teamDomicileID,
+            p_teamExterieurID,
+            p_dateHeureDebut,
+            p_dateHeureFin,
+            p_statut
+        );
+
+    END IF;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+drop procedure if exists sp_createComment;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createComment`(
+    IN p_confrontation_id int,
+    IN p_commentateur varchar(100),
+    IN p_text_comment Text,
+    IN p_dateHeureComment datetime
+)
+BEGIN
+    if ( select exists (select 1 from commentaire where confrontationID = p_confrontation_id AND texteCommentaire = p_text_comment) ) THEN
+
+        select 'Commentaire déjà enregistré...';
+
+    ELSE
+
+        insert into confrontation
+        (
+            confrontationID,
+            commentateur,
+            texteCommentaire,
+            dateHeureCommentaire
+        )
+        values
+        (
+            p_confrontation_id,
+            p_commentateur,
+            p_text_comment,
+            p_dateHeureComment
+        );
+
+    END IF;
+END $$
+DELIMITER ;
+
+
+DELIMITER $$
+drop procedure if exists sp_createBet;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createBet`(
+    IN p_userID int,
+    IN p_confrontation_id int,
+    IN p_equipeID int,
+    IN p_montantMiser Decimal(10,2),
+    IN p_montantGagnePerdu Decimal(10,2)
+)
+BEGIN
+
+    insert into Pari
+    (
+        userID,
+        confrontationID,
+        equipeID,
+        montantMise,
+        montantGagnePerdu
+    )
+    values
+    (
+        p_userID,
+        p_confrontation_id,
+        p_equipeID,
+        p_montantMiser,
+        p_montantGagnePerdu
+    );
+
+END $$
+DELIMITER ;
+
+DELIMITER $$
+drop procedure if exists sp_createEvent;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createEvent`(
+    IN p_description text,
+    IN p_type varchar(50),
+    IN p_confrontation_id int
+)
+BEGIN
+    if ( select exists (select 1 from Evenement where descriptionEvenement = p_description AND confrontationID = p_confrontation_id) ) THEN
+
+        select 'Evenement déjà enregistré...';
+
+    ELSE
+
+        insert into Evenement
+        (
+            descriptionEvenement,
+            dateHeureEvenement,
+            typeEvenement,
+            confrontationID
+        )
+        values
+        (
+            p_description,
+            NOW(),
+            p_type,
+            p_confrontation_id
+        );
+
+    END IF;
+END $$
+DELIMITER ;
+
+DELIMITER $$
+drop procedure if exists sp_createHistoriqueMise;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createHistoriqueMise`(
+    IN p_userID int,
+    IN p_confrontationID int,
+    IN p_montantMiser decimal(10,2),
+    IN p_resultat varchar(6)
+)
+BEGIN
+
+    insert into HistoriqueMises
+    (
+        userID,
+        confrontationID,
+        montantMise,
+        resultat
+    )
+    values
+    (
+        p_userID,
+        p_confrontationID,
+        p_montantMiser,
+        p_resultat
+    );
+
+END $$
+DELIMITER ;
+
+DELIMITER $$
+drop procedure if exists sp_createSession;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_createSession`(
+    IN p_email varchar(254),
+    IN p_token varchar(254),
+    IN p_dateHeureDebut datetime,
+    IN p_dateHeureFin datetime
+)
+BEGIN
+
+    insert into session
+    (
+        email,
+        token,
+        dateHeureDebut,
+        dateHeureFin
+    )
+    values
+    (
+        p_email,
+        p_token,
+        p_dateHeureDebut,
+        p_dateHeureFin
+    );
+
+END $$
+DELIMITER ;
+
+
+DELIMITER $$
+drop trigger if exists after_insert_session;
+CREATE TRIGGER after_insert_session
+AFTER INSERT ON session
+FOR EACH ROW
+BEGIN
+    declare session_count int;
+
+    select count(*) into session_count where email=NEW.email and token = NEW.token;
+    if session_count > 0 then
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Token  déjà attribué...';
+    end if $$
+
+END $$
+
 DELIMITER ;

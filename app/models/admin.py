@@ -114,7 +114,7 @@ class Admin:
     def get_by_id(id):
         conn = mysql.connect()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM administrateur WHERE adminID = %s", (id,))
+        cursor.execute("SELECT * FROM administrateur WHERE administrateurID = %s", (id,))
         admin_data = cursor.fetchone()
         cursor.close()
         conn.close()

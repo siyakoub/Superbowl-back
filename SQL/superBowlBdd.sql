@@ -44,9 +44,9 @@ CREATE TABLE Confrontation (
 drop table if exists Cote;
 -- Création de la table Cote
 CREATE TABLE Cote (
-    coteID float NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    coteID int NOT NULL AUTO_INCREMENT PRIMARY KEY,
     equipeID INT NOT NULL,
-    coteVictoire DECIMAL(5,2) NOT NULL,
+    coteVictoire float NOT NULL,
     FOREIGN KEY (equipeID) REFERENCES Equipe(equipeID)
 );
 drop table if exists Pari;
@@ -117,6 +117,7 @@ CREATE TABLE session (
     token VARCHAR(254) NOT NULL,
     dateHeureDebut DATETIME NOT NULL,
     dateHeureFin DATETIME,
+    actif int,
     FOREIGN KEY (email) REFERENCES Utilisateur (adresseEmail)
 );
 

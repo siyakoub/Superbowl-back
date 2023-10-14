@@ -44,6 +44,7 @@ class UserService:
     def delete_user_service(user):
         user.delete_user()
 
+
     @staticmethod
     def desactivate_user_service(user):
         user.desactivate_user()

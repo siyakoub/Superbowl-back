@@ -1,7 +1,9 @@
+import datetime
 import urllib.parse
 from flask import Blueprint, request, jsonify
 from app.utils.hashFunction import hash_password
 from app.services.user_service import UserService
+from app.services.session_service import SessionService
 
 user_bp = Blueprint("user", __name__)
 
@@ -55,6 +57,80 @@ def get_all_users_inactif_route():
                 "Error": str(e)
             }
         ), 500
+
+
+@user_bp.route("users/login", methods=["POST"])
+def login_route():
+    try:
+        data = request.get_json()
+        email = data["email"]
+        password = data["password"]
+        user = UserService.get_user_by_email_service(email)
+        if user and user.motDePasse == hash_password(password):
+            SessionService.create_session_service(email, datetime.datetime.now(), (datetime.datetime.now() + datetime.timedelta(hours=24)))
+            sessions = SessionService.get_all_session_by_email(email)
+            for session in sessions:
+                if session.dateHeureDebut == datetime.datetime.now():
+                    return jsonify(
+                        {
+                            "connected": True,
+                            "utilisateur": user.__dict__,
+                            "session": session.__dict__
+                        }
+                    ), 201
+                else:
+                    pass
+        else:
+            return jsonify(
+                {
+                    "connected": False,
+                    "erroeMessage": "L'email ou le mot de passe ne correspond à un utilisateur dans la base de données..."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la connexion  de l'utilisateur...",
+                "error": str(e)
+            }
+        ), 500
+
+
+@user_bp.route("/users/logout", methods=["DELETE"])
+def logout_route():
+    try:
+        token = request.headers.get("token")
+        session = SessionService.get_session_by_token_service(token)
+        if session:
+            user = UserService.get_user_by_email_service(session.email)
+            if user:
+                return jsonify(
+                    {
+                        "deconnected": True,
+                        "session": session.__dict__,
+                        "utilisateur": user.__dict__
+                    }
+                ), 200
+            else:
+                return jsonify(
+                    {
+                        "errorMessage": "Aucune utilisateur ne possèdent cette session..."
+                    }
+                ), 404
+        else:
+            return jsonify(
+                {
+                    "errorMessage": "Aucune session n'a été trouvé..."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la deconnexion de la session...",
+                "error": str(e)
+            }
+        ), 500
+
 
 
 @user_bp.route("/users/<int:user_id>", methods=["GET"])
@@ -143,9 +219,7 @@ def update_user_route(email):
         newEmail = data["adresseEmail"]
         password = data["motDePasse"]
         user = UserService.get_user_by_email_actif_service(emailDecoded)
-        print(user)
         password_hashed = hash_password(password)
-        print(password_hashed)
         UserService.update_user_service(nom, prenom, newEmail, password_hashed, emailDecoded)
         newUser = UserService.get_user_by_email_service(newEmail)
         if newUser:

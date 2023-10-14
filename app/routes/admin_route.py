@@ -1,3 +1,4 @@
+import time
 import urllib.parse
 from flask import Blueprint, request, jsonify
 from app.utils.hashFunction import hash_password
@@ -12,9 +13,11 @@ def get_all_admins_route():
         admins = AdminService.get_all_admin()
         if admins:
             return jsonify(
-                [
-                    admin.__dict__ for admin in admins
-                ]
+                {
+                    "admins": [
+                        admin.__dict__ for admin in admins
+                    ]
+                }
             ), 200
         else:
             return jsonify(
@@ -156,11 +159,14 @@ def create_admin_route():
         password = data["pass"]
         nom = data["nom"]
         prenom = data["prenom"]
-        created = AdminService.create_admin(login, password, nom, prenom)
-        if created:
+        pass_hashed = hash_password(password)
+        AdminService.create_admin(login, pass_hashed, nom, prenom)
+        admin = AdminService.get_admin_by_login(login)
+        if admin:
             return jsonify(
                 {
-                    "message": "Administrateur créé avec succès !"
+                    "message": "Administrateur créé avec succès !",
+                    "admin": admin.__dict__
                 }
             ), 201
         else:
@@ -187,12 +193,15 @@ def update_admin_route(login):
         password = data["pass"]
         nom = data["nom"]
         prenom = data["prenom"]
+        pass_hashed = hash_password(password)
         admin = AdminService.get_admin_by_login(loginDecoded)
-        updated = admin.update_admin(login, password, nom, prenom)
-        if updated:
+        admin.update_admin(login, pass_hashed, nom, prenom)
+        new_admin = admin.get_admin_by_login(login)
+        if new_admin:
             return jsonify(
                 {
-                    "message": "Administrateur mise à jour avec succès !"
+                    "message": "Administrateur mise à jour avec succès !",
+                    "admin": new_admin.__dict__
                 }
             ), 200
         else:
@@ -215,8 +224,10 @@ def delete_admin_route(login):
     try:
         loginDecoded = urllib.parse.unquote(login, "UTF-8")
         admin = AdminService.get_admin_by_login(loginDecoded)
-        delete = admin.delete_admin()
-        if delete:
+        admin.delete_admin()
+        deleted_admin = admin.get_admin_by_login(loginDecoded)
+        print(deleted_admin)
+        if deleted_admin is None:
             return jsonify(
                 {
                     "message": "L'administrateur à été supprimer avec succès !"
@@ -237,16 +248,19 @@ def delete_admin_route(login):
         ), 500
 
 
-@admin_bp.route("/admins/<string:login>", methods=["PUT"])
+@admin_bp.route("/admins/<string:login>/desac", methods=["PUT"])
 def desactivate_admin_route(login):
     try:
         loginDecoded = urllib.parse.unquote(login, "UTF-8")
         admin = AdminService.get_admin_actif_by_login(loginDecoded)
-        desactivate = admin.desactivate_admin(admin)
-        if desactivate:
+        AdminService.desactivate_admin(admin)
+        time.sleep(2)
+        deletedAdmin = AdminService.get_admin_inactif_by_login(loginDecoded)
+        if deletedAdmin:
             return jsonify(
                 {
-                    "message": "L'administrateur à été désactiver avec succès !"
+                    "message": "L'administrateur à été désactiver avec succès !",
+                    "admin": admin.__dict__
                 }
             ), 200
         else:
@@ -262,4 +276,3 @@ def desactivate_admin_route(login):
                 "Error": str(e)
             }
         )
-

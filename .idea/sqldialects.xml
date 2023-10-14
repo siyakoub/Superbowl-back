@@ -3,5 +3,9 @@
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/SQL/procedure.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/SQL/superBowlBdd.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/app/models/comment.py" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/app/models/event.py" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/app/models/historiqueMise.py" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/app/models/session.py" dialect="MySQL" />
   </component>
 </project>
