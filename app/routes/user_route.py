@@ -69,17 +69,15 @@ def login_route():
         if user and user.motDePasse == hash_password(password):
             SessionService.create_session_service(email, datetime.datetime.now(), (datetime.datetime.now() + datetime.timedelta(hours=24)))
             sessions = SessionService.get_all_session_by_email(email)
-            for session in sessions:
-                if session.dateHeureDebut == datetime.datetime.now():
-                    return jsonify(
-                        {
-                            "connected": True,
-                            "utilisateur": user.__dict__,
-                            "session": session.__dict__
-                        }
-                    ), 201
-                else:
-                    pass
+            if sessions:
+                sessionActive = sessions[-1]
+                return jsonify(
+                    {
+                        "connected": True,
+                        "utilisateur": user.__dict__,
+                        "sessions": sessionActive.__dict__
+                    }
+                )
         else:
             return jsonify(
                 {
@@ -103,6 +101,7 @@ def logout_route():
         session = SessionService.get_session_by_token_service(token)
         if session:
             user = UserService.get_user_by_email_service(session.email)
+            session.update(session.email, session.token, datetime.datetime.now())
             if user:
                 return jsonify(
                     {
@@ -114,7 +113,8 @@ def logout_route():
             else:
                 return jsonify(
                     {
-                        "errorMessage": "Aucune utilisateur ne possèdent cette session..."
+                        "errorMessage": "Aucune utilisateur ne possèdent cette session...",
+                        "deconnected": True
                     }
                 ), 404
         else:
