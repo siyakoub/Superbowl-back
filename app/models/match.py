@@ -70,6 +70,41 @@ class Match:
             return None
 
     @staticmethod
+    def getAllAVenir():
+        conn = mysql.connect()
+        cursor = conn.cursor()
+
+        # Obtenir la date actuelle (aujourd'hui)
+        cursor.execute("SELECT CURDATE()")
+
+        # Récupérer la date actuelle
+        current_date = cursor.fetchone()[0]
+
+        # Sélectionner tous les matchs à venir (dateHeureDebut > aujourd'hui) avec le statut "Avenir"
+        cursor.execute("SELECT * FROM Confrontation WHERE dateHeureDebut > %s AND statut = 'Avenir'", (current_date,))
+
+        # Récupérer les matchs à venir
+        upcoming_matchs_data = cursor.fetchall()
+
+        conn.close()
+        upcoming_matchs = []
+        if upcoming_matchs_data:
+            for upcoming_match_data in upcoming_matchs_data:
+                confrontation_id = upcoming_match_data[0]
+                teamDomicile_id = upcoming_match_data[1]
+                teamExterieur_id = upcoming_match_data[2]
+                dateHeureDebut = upcoming_match_data[3]
+                dateHeureFin = upcoming_match_data[4]
+                statut = upcoming_match_data[5]
+                upcoming_matchs.append(
+                    Match(dateHeureDebut, dateHeureFin, statut, teamDomicile_id, teamExterieur_id, confrontation_id)
+                )
+            return upcoming_matchs
+        else:
+            return None
+
+
+    @staticmethod
     def get_match_by_teams(id_teamDomicile, id_teamExterieur):
         conn = mysql.connect()
         cursor = conn.cursor()
@@ -106,7 +141,7 @@ class Match:
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "update confrontation set statut='Termine' where confrontationID=%s",
+            "update confrontation set statut='Termine', dateHeureFin=NOW() where confrontationID=%s",
             (self.matchID,)
         )
         conn.commit()

@@ -46,7 +46,7 @@ class Session:
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "select * from session where email=%s",
+            "select * from superBowlBdd.session where email=%s",
             (email,)
         )
         sessions_data = cursor.fetchall()
@@ -56,12 +56,12 @@ class Session:
         if sessions_data:
             for session_data in sessions_data:
                 sessionID = session_data[0]
-                email = session_data[1]
+                email_data = session_data[1]
                 token = session_data[2]
                 dateHeureDebut = session_data[3]
                 dateHeureFin = session_data[4]
                 sessions.append(
-                    Session(email, token, dateHeureDebut, dateHeureFin, sessionID)
+                    Session(email_data, token, dateHeureDebut, dateHeureFin, sessionID)
                 )
             return sessions
         else:
@@ -97,7 +97,7 @@ class Session:
         conn = mysql.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "select * from session where token=%s",
+            "select * from superBowlBdd.session where token=%s",
             (token,)
         )
         session_data = cursor.fetchone()

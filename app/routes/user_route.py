@@ -68,6 +68,7 @@ def login_route():
         user = UserService.get_user_by_email_service(email)
         if user and user.motDePasse == hash_password(password):
             SessionService.create_session_service(email, datetime.datetime.now(), (datetime.datetime.now() + datetime.timedelta(hours=24)))
+            print("ok")
             sessions = SessionService.get_all_session_by_email(email)
             if sessions:
                 sessionActive = sessions[-1]

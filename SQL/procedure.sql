@@ -1,13 +1,18 @@
 use superBowlBdd;
+-- Changement de délimiteur pour pouvoir créer des procédures et des déclencheurs
 DELIMITER $$
-drop trigger if exists before_insert_user;
+
+-- Supprimez le déclencheur s'il existe déjà
+DROP TRIGGER IF EXISTS before_insert_user;
+
+-- Créez le déclencheur before_insert_user
 CREATE TRIGGER before_insert_user
 BEFORE INSERT ON Utilisateur
 FOR EACH ROW
 BEGIN
     DECLARE email_count INT;
 
-    -- Vérifier si l'adresse e-mail existe déjà
+    -- Vérifiez si l'adresse e-mail existe déjà
     SELECT COUNT(*) INTO email_count FROM Utilisateur WHERE adresseEmail = NEW.adresseEmail;
 
     IF email_count > 0 THEN
@@ -16,6 +21,7 @@ BEGIN
     END IF;
 END $$
 
+-- Rétablissez le délimiteur par défaut
 DELIMITER ;
 
 DELIMITER $$
@@ -456,20 +462,34 @@ END $$
 DELIMITER ;
 
 
+
 DELIMITER $$
-drop trigger if exists after_insert_session;
-CREATE TRIGGER after_insert_session
-AFTER INSERT ON session
-FOR EACH ROW
+drop event if exists UpdateMatchBeginStatusEvent;
+CREATE EVENT UpdateMatchBeginStatusEvent
+ON SCHEDULE EVERY 5 MINUTE
+DO
 BEGIN
-    declare session_count int;
+    UPDATE Confrontation
+    SET statut = 'EnCours'
+    WHERE dateHeureDebut <= NOW();
+END;
 
-    select count(*) into session_count where email=NEW.email and token = NEW.token;
-    if session_count > 0 then
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'Token  déjà attribué...';
-    end if $$
-
-END $$
+$$
 
 DELIMITER ;
+
+DELIMITER $$
+drop event if exists UpdateMatchEndStatusEvent;
+CREATE EVENT UpdateMatchEndStatusEvent
+ON SCHEDULE EVERY 5 MINUTE
+DO
+BEGIN
+    UPDATE Confrontation
+    SET statut = 'Termine', dateHeureFin=NOW()
+    WHERE dateHeureFin <= NOW();
+END;
+
+$$
+
+DELIMITER ;
+

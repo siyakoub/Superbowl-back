@@ -16,6 +16,26 @@ class MatchService:
         return Match.get_all_match()
 
     @staticmethod
+    def get_all_a_venir_service():
+        return Match.getAllAVenir()
+
+    @staticmethod
+    def start_match_service(id_match):
+        match = Match.get_by_id(id_match)
+        if match:
+            match.startMatch()
+        else:
+            pass
+
+    @staticmethod
+    def end_match_service(id_match):
+        match = Match.get_by_id(id_match)
+        if match:
+            match.endMatch()
+        else:
+            pass
+
+    @staticmethod
     def create_match_service(dateHeureDebut, dateHeureFin, statut, teamDomicileID, teamExterieurID):
         match = Match(dateHeureDebut, dateHeureFin, statut, teamDomicileID, teamExterieurID)
         match.save()

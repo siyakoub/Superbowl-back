@@ -1,5 +1,6 @@
 from app.models.admin import Admin
 
+
 class AdminService:
     @staticmethod
     def create_admin(login, password, nom, prenom):

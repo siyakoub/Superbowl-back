@@ -34,6 +34,7 @@ def get_all_match_route():
             }
         ), 500
 
+
 @match_bp.route("/matchs/<int:match_id>", methods=["GET"])
 def get_match_by_id_route(match_id):
     try:
@@ -87,6 +88,62 @@ def get_match_by_teams_route():
         ), 500
 
 
+@match_bp.route("/matchs/<int:id_match>/start")
+def startMatch(id_match):
+    try:
+        MatchService.start_match_service(id_match)
+        time.sleep(1)
+        match = MatchService.get_match_by_id_service(id_match)
+        if match and match.statut == "EnCours":
+            return jsonify(
+                {
+                    "message": "Le match à démarrer !",
+                    "match": match.__dict__
+                }
+            ), 200
+        else:
+            return jsonify(
+                {
+                    "errorMessage": "La mise à jour n'a pas été effectif..."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors du lancement du match...",
+                "error": str(e)
+            }
+        ), 500
+
+
+@match_bp.route("/matchs/<int:id_match>/end")
+def end_match_route(id_match):
+    try:
+        MatchService.end_match_service(id_match)
+        time.sleep(1)
+        match = MatchService.get_match_by_id_service(id_match)
+        if match and match.statut == "Termine":
+            return jsonify(
+                {
+                    "message": "Le match à été fini avec succès...",
+                    "match": match.__dict__
+                }
+            ), 200
+        else:
+            return jsonify(
+                {
+                    "errorMessage": "La fin du match n'as pas été lancé avec succès.."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la mise à jour de la fin du match...",
+                "error": str(e)
+            }
+        ), 500
+
+
 @match_bp.route("/matchs", methods=["POST"])
 def create_match_route():
     try:
@@ -118,6 +175,33 @@ def create_match_route():
         return jsonify(
             {
                 "errorMessage": "Une erreur est survenue lors de la création du match...",
+                "error": str(e)
+            }
+        ), 500
+
+
+@match_bp.route("/matchs/upcommings")
+def get_all_a_venir_route():
+    try:
+        matchs = MatchService.get_all_a_venir_service()
+        if matchs:
+            return jsonify(
+                {
+                    "matchs": [
+                        match.__dict__ for match in matchs
+                    ]
+                }
+            ), 200
+        else:
+            return jsonify(
+                {
+                    "errorMessage": "Aucun match à venir trouvé..."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la récupération des matchs à venir...",
                 "error": str(e)
             }
         ), 500
@@ -184,3 +268,6 @@ def delete_match_route(match_id):
                 "error": str(e)
             }
         ), 500
+
+
+
