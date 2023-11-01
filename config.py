@@ -22,12 +22,12 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # Utilisez 'Strict' en production pour plus de sécurité
 
     # Configurations de Flask-Mail (pour l'envoi d'e-mails, le cas échéant)
-    MAIL_SERVER = 'smtp.example.com'
+    MAIL_SERVER = 'smtp.free.fr'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
-    MAIL_USERNAME = 'votre_email'
-    MAIL_PASSWORD = 'votre_mot_de_passe'
+    MAIL_USERNAME = 'siyakoubm@free.fr'
+    MAIL_PASSWORD = '1Mehdi23!'
 
 
 # Sélectionnez la configuration en fonction de l'environnement (développement, production, etc.)

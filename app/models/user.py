@@ -22,6 +22,17 @@ class User:
         cursor.close()
         conn.close()
 
+    def resetPassword(self, password):
+        conn = mysql.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE utilisateur set motDePasse=%s where adresseEmail=%s",
+            (password, self.adresseEmail)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
     @staticmethod
     def get_by_email_actif(email):
         conn = mysql.connect()

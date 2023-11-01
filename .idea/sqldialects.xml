@@ -8,5 +8,6 @@
     <file url="file://$PROJECT_DIR$/app/models/historiqueMise.py" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/app/models/match.py" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/app/models/session.py" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/app/models/user.py" dialect="MySQL" />
   </component>
 </project>

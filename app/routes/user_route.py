@@ -68,7 +68,6 @@ def login_route():
         user = UserService.get_user_by_email_service(email)
         if user and user.motDePasse == hash_password(password):
             SessionService.create_session_service(email, datetime.datetime.now(), (datetime.datetime.now() + datetime.timedelta(hours=24)))
-            print("ok")
             sessions = SessionService.get_all_session_by_email(email)
             if sessions:
                 sessionActive = sessions[-1]
@@ -177,6 +176,57 @@ def get_user_by_email_actif_route(email: str):
             {
                 "ErrorMessage": "Une erreur est survenue lors de la récupération de l'utilisateur...",
                 "Error": str(e)
+            }
+        ), 500
+
+
+@user_bp.route("/users/reset-password", methods=["POST"])
+def reset_password_route():
+    try:
+        data = request.get_json()
+        email = data["email"]
+        newPassword = data["newPassword"]
+        new_password_hashed = hash_password(newPassword)
+        UserService.reset_password_service(email, new_password_hashed)
+        return jsonify(
+            {
+                "reset": True,
+                "message": "Le nouveau mot de passe à été mis à jour avec succès..."
+            }
+        ), 200
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la réinistalisation du mot de passe...",
+                "error": str(e)
+            }
+        ), 500
+
+@user_bp.route("users/request-reset-password", methods=["POST"])
+def request_reset_password():
+    try:
+        data = request.get_json()
+        email = data["email"]
+        send = UserService.request_reset_password(email)
+        if send:
+            return jsonify(
+                {
+                    "send": True,
+                    "message": "Un mail de réinistialisation de mot de passe à été envoyé à l'utilisateur..."
+                }
+            ), 200
+        else:
+            return jsonify(
+                {
+                    "send": False,
+                    "errorMessage": "Utilisateur introuvable..."
+                }
+            ), 404
+    except Exception as e:
+        return jsonify(
+            {
+                "errorMessage": "Une erreur est survenue lors de la demande de réinistialisation du mot de passe...",
+                "error": str(e)
             }
         ), 500
 
