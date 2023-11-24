@@ -1,19 +1,21 @@
-name: Exposer l'application Flask avec Ngrok
+name: Ngrok Workflow
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
-  expose_flask_app:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout du code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Installer les dépendances Python
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install Flask==2.0.2
@@ -21,22 +23,21 @@ jobs:
         pip install flask-cors==4.0.0
 
 
-    - name: Démarrer l'application Flask
-      run: |
-        export FLASK_APP=app.py  # Remplacez app.py par le nom de votre fichier Flask
-        flask run --host=127.0.0.1 --port=5000 &  # Lance l'application Flask en arrière-plan
 
-    - name: Télécharger et installer Ngrok
+    - name: Start Flask server
       run: |
-        wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip
-        unzip ngrok-stable-linux-amd64.zip
+        nohup python app.py &
 
-    - name: Authentifier votre compte Ngrok
+    - name: Set up Ngrok
       run: |
-        ./ngrok authtoken 2YdteexLJfFhsyr9Mw0vLTHyrEx_4Fm4PsUKTaRwc1eGdh5d  # Remplacez VOTRE_JETON_NGROK par votre jeton Ngrok
+        ./ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
-    - name: Exposer l'application via Ngrok avec votre compte
+    - name: Get Ngrok URL
+      id: ngrok
       run: |
-        ./ngrok http 5000  # Remplacez 5000 par le port sur lequel votre application Flask est en cours d'exécution
-
-    # Ajoutez des étapes supplémentaires pour gérer le reste du workflow, comme les tests, etc.
+        ./ngrok http 5000 > /dev/null &
+        sleep 10 # Adjust the sleep duration based on your app startup time
+        NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r .tunnels[0].public_url)
+        echo "Ngrok URL: $NGROK_URL"
+      env:
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
