@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Récupérer l'adresse IP
+        run: |
+          IP=$(curl -s ifconfig.me)
+          echo "L'adresse IP du runner est : $IP"
+    
       - name: Checkout repository
         uses: actions/checkout@v2
 
